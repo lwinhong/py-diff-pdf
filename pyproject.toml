@@ -10,7 +10,7 @@ build-backend = "hatchling.build" #setuptools.build_meta
 # 项目的名称。
 name = "py_diff_pdf2"
 # 项目的版本号。
-version = "1.0.5"
+version = "1.0.6"
 # 作者信息列表，包含作者的姓名和电子邮件。
 authors = [
     { name = "lwinhong", email = "80469181@qq.com" },

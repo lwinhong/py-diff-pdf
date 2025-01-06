@@ -9,7 +9,8 @@ exe_path = os.path.join(current_dir, "libs", "diff-pdf.exe")
 
 
 def compare_pdfs(
-        pdf1_path: str, pdf2_path: str, output_path: str = None, pages: str = None, progress_callback=None
+        pdf1_path: str, pdf2_path: str, output_path: str = None, pages: str = None,
+        progress_callback=None, compare_context=None
 ):
     """
     比较两个PDF文件并生成差异报告。
@@ -20,6 +21,7 @@ def compare_pdfs(
         output_path (str, optional): 输出差异报告的路径。如果未指定，则默认为'diff.pdf'。默认为None。
         pages (str, optional): 需要比较的PDF页码范围，格式为'1,2,6'。默认为None。
         progress_callback: 进度回调
+        compare_context:配置项
 
     Returns:
         dict: 包含操作结果的字典。
@@ -69,6 +71,10 @@ def compare_pdfs(
     def read_output(pipe, func):
         if func is not None:
             for line in iter(pipe.readline, ''):
+                if compare_context is not None and compare_context.get("canceled", False):
+                    process.terminate()
+                    break
+
                 line_str = line.strip()
                 if line_str is not None and line_str.startswith('Progress:'):
                     [page, total] = line_str[len('Progress:'):].split(',')
@@ -76,19 +82,14 @@ def compare_pdfs(
                         "page": int(page.strip()),
                         "total": int(total.strip())
                     })
-
-        pipe.close()
-
-    def read_err_output(pipe):
-        for line in iter(pipe.readline, ''):
-            line_str = line.strip()
-            err_list.append(line_str)
+                else:
+                    err_list.append(line_str)
 
         pipe.close()
 
     # 实时读取标准输出和标准错误
     stdout_thread = threading.Thread(target=read_output, args=(process.stdout, progress_callback))
-    stderr_thread = threading.Thread(target=read_err_output, args=process.stderr)
+    stderr_thread = threading.Thread(target=read_output, args=(process.stderr, progress_callback))
 
     stdout_thread.start()
     stderr_thread.start()
@@ -97,7 +98,7 @@ def compare_pdfs(
     stderr_thread.join()
 
     # 获取返回码
-    return_code = process.poll()
+    return_code = process.wait()
     # 等待进程结束并获取返回码
 
     success = return_code == 1  # 通常成功返回 1

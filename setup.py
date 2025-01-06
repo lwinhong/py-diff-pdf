@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="py_diff_pdf2",
-    version="1.0.5",
+    version="1.0.6",
     author="lwinhong",
     url='https://github.com/lwinhong/py-diff-pdf',
     author_email="",
