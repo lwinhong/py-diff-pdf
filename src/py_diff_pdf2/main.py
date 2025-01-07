@@ -1,5 +1,6 @@
 import subprocess
-import os, threading
+import os
+import threading
 
 # 获取当前脚本所在的目录
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -10,7 +11,7 @@ exe_path = os.path.join(current_dir, "libs", "diff-pdf.exe")
 
 def compare_pdfs(
         pdf1_path: str, pdf2_path: str, output_path: str = None, pages: str = None,
-        progress_callback=None, compare_context=None
+        progress_callback=None, compare_context=None, **kwargs,
 ):
     """
     比较两个PDF文件并生成差异报告。
@@ -25,12 +26,12 @@ def compare_pdfs(
 
     Returns:
         dict: 包含操作结果的字典。
-
+            - output_path (str): 结果文档路径
             - success (bool): 操作是否成功。
             - message (str, optional): 如果操作失败，则返回错误信息；否则为None。
 
     Raises:
-        FileNotFoundError: 如果pdf1_path或pdf2_path指定的文件不存在，则引发此异常。
+        FileNotFoundError: 如果pdf1_path或pdf2_path或者exe_path指定的文件不存在，则引发此异常。
 
     """
     # 如果exe文件不存在，抛出异常
