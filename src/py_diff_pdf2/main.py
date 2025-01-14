@@ -59,23 +59,23 @@ def compare_pdfs(
 
     # 在文档左边加上红条
     if kwargs.get("mark_differences", False):
-        command.append("-m")
+        command.append("/m")
 
     # 只输出不同的页面
     if kwargs.get("skip_identical", False):
-        command.append("-s")
+        command.append("/s")
 
     # 只有不同的地方有不同颜色，其他都灰度输出
     if kwargs.get("grayscale", False):
-        command.append("-g")
+        command.append("/g")
 
     # 是详细的
     if kwargs.get("verbose", False):
-        command.append("-v")
+        command.append("/v")
 
     # dpi
     if kwargs.get("dpi", None):
-        command.append(f"--d=={kwargs['dpi']}")
+        command.append(f"--d={kwargs['dpi']}")
 
     # channel-tolerance
     if kwargs.get("channel_tolerance", None):
