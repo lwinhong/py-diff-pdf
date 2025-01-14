@@ -55,7 +55,35 @@ def compare_pdfs(
         pdf2_path,
     ]
     if pages is not None:
-        command.insert(2, f"--pages={pages}")
+        command.append(f"--pages={pages}")
+
+    # 在文档左边加上红条
+    if kwargs.get("mark_differences", False):
+        command.append("-m")
+
+    # 只输出不同的页面
+    if kwargs.get("skip_identical", False):
+        command.append("-s")
+
+    # 只有不同的地方有不同颜色，其他都灰度输出
+    if kwargs.get("grayscale", False):
+        command.append("-g")
+
+    # 是详细的
+    if kwargs.get("verbose", False):
+        command.append("-v")
+
+    # dpi
+    if kwargs.get("dpi", None):
+        command.append(f"--d=={kwargs['dpi']}")
+
+    # channel-tolerance
+    if kwargs.get("channel_tolerance", None):
+        command.append(f"--channel-tolerance={kwargs['channel_tolerance']}")
+
+    # per-page-pixel-tolerance
+    if kwargs.get("per_page_pixel_tolerance", None):
+        command.append(f"--per-page-pixel-tolerance={kwargs['per_page_pixel_tolerance']}")
 
     # 启动进程
     process = subprocess.Popen(
@@ -77,11 +105,12 @@ def compare_pdfs(
                     break
 
                 line_str = line.strip()
-                if line_str is not None and line_str.startswith('Progress:'):
-                    [page, total] = line_str[len('Progress:'):].split(',')
+                if line_str is not None and line_str.startswith("Progress:"):
+                    [page, total, same] = line_str[len("Progress:"):].split(',')
                     func({
                         "page": int(page.strip()),
-                        "total": int(total.strip())
+                        "total": int(total.strip()),
+                        "same": same.strip() == "1"
                     })
                 else:
                     err_list.append(line_str)
