@@ -1,4 +1,12 @@
 # Example Package
+build:
+```shell
+python  -m build 
+```
+upload
+```shell
+twine upload dist/* 
+```
 
 安装：
 ```shell
