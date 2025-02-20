@@ -117,9 +117,16 @@ def compare_pdfs(
 
         pipe.close()
 
+    def read_err_output(pipe, func):
+        if func is not None:
+            for line in iter(pipe.readline, ''):
+                err_list.append(line.strip())
+
+        pipe.close()
+
     # 实时读取标准输出和标准错误
     stdout_thread = threading.Thread(target=read_output, args=(process.stdout, progress_callback))
-    stderr_thread = threading.Thread(target=read_output, args=(process.stderr, progress_callback))
+    stderr_thread = threading.Thread(target=read_err_output, args=(process.stderr, progress_callback))
 
     stdout_thread.start()
     stderr_thread.start()
@@ -131,11 +138,12 @@ def compare_pdfs(
     return_code = process.wait()
     # 等待进程结束并获取返回码
 
-    success = return_code == 1  # 通常成功返回 1
+    is_the_same = return_code == 1  # 比对内容完全相同返回1，不同 0
 
     result = {
-        "success": success,
-        "message": '/n'.join(err_list) if not success and len(err_list) > 0 else '',
-        "output_path": output_path
+        "success": True,
+        "message": '/n'.join(err_list) if len(err_list) > 0 else '',
+        "output_path": output_path,
+        "is_the_same": is_the_same
     }
     return result
